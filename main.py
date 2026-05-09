@@ -323,7 +323,7 @@ class NTEFishingBot:
                     "width": round(self._screen_w * ratios["width"]),
                     "height": round(self._screen_h * ratios["height"]),
                 }
-                self._log(f"[Calibration] Loaded error ROI -> {self._roi_error}")
+                self._log(f"[Calibration] Loaded dialog ROI -> {self._roi_error}")
         except Exception as exc:
             self._log(f"Failed to load {error_json}: {exc}", logging.ERROR)
 
