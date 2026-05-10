@@ -67,7 +67,7 @@ class TimingConfig:
     cast_animation_secs: float = 1.8
     bite_timeout_secs: float = 45.0
     lost_frames_threshold: int = 40
-    result_wait_secs: float = 2.2
+    result_wait_secs: float = 3.0
     key_press_duration: float = 0.05
     waiting_poll_interval: float = 0.05
     struggling_poll_interval: float = 0.01
