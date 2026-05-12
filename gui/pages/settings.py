@@ -241,7 +241,7 @@ def _build_pid_settings():
             default=CFG.pid.kd, cb=lambda s, d: _set(CFG.pid, "kd", d),
         )
         _slider_with_tooltip(
-            "Deadband", tag="cfg_pid_deadband", min_val=0.0, max_val=20.0, fmt="%.1f",
+            "Deadband (px)", tag="cfg_pid_deadband", min_val=0.0, max_val=20.0, fmt="%.1f",
             default=CFG.pid.deadband, cb=lambda s, d: _set(CFG.pid, "deadband", d),
         )
         _slider_with_tooltip(
@@ -452,25 +452,25 @@ def _build_humanization_settings():
         dpg.add_text("Key Pulse Timing", color=TEXT_MUTED)
         dpg.add_spacer(height=4)
         _slider_with_tooltip(
-            "Pulse hold min", tag="cfg_hum_pulse_hold_min",
+            "Pulse hold min (s)", tag="cfg_hum_pulse_hold_min",
             min_val=0.010, max_val=0.150, fmt="%.3f",
             default=CFG.humanization.pulse_hold_min,
             cb=lambda s, d: _set(CFG.humanization, "pulse_hold_min", d),
         )
         _slider_with_tooltip(
-            "Pulse hold max", tag="cfg_hum_pulse_hold_max",
+            "Pulse hold max (s)", tag="cfg_hum_pulse_hold_max",
             min_val=0.020, max_val=0.200, fmt="%.3f",
             default=CFG.humanization.pulse_hold_max,
             cb=lambda s, d: _set(CFG.humanization, "pulse_hold_max", d),
         )
         _slider_with_tooltip(
-            "Pulse gap min", tag="cfg_hum_pulse_release_min",
+            "Pulse gap min (s)", tag="cfg_hum_pulse_release_min",
             min_val=0.002, max_val=0.050, fmt="%.3f",
             default=CFG.humanization.pulse_release_min,
             cb=lambda s, d: _set(CFG.humanization, "pulse_release_min", d),
         )
         _slider_with_tooltip(
-            "Pulse gap max", tag="cfg_hum_pulse_release_max",
+            "Pulse gap max (s)", tag="cfg_hum_pulse_release_max",
             min_val=0.005, max_val=0.080, fmt="%.3f",
             default=CFG.humanization.pulse_release_max,
             cb=lambda s, d: _set(CFG.humanization, "pulse_release_max", d),
@@ -495,13 +495,13 @@ def _build_humanization_settings():
         dpg.add_text("Reaction Latency", color=TEXT_MUTED)
         dpg.add_spacer(height=4)
         _slider_with_tooltip(
-            "Reaction min", tag="cfg_hum_react_min",
+            "Reaction min (s)", tag="cfg_hum_react_min",
             min_val=0.0, max_val=0.200, fmt="%.3f",
             default=CFG.humanization.reaction_latency_min,
             cb=lambda s, d: _set(CFG.humanization, "reaction_latency_min", d),
         )
         _slider_with_tooltip(
-            "Reaction max", tag="cfg_hum_react_max",
+            "Reaction max (s)", tag="cfg_hum_react_max",
             min_val=0.0, max_val=0.300, fmt="%.3f",
             default=CFG.humanization.reaction_latency_max,
             cb=lambda s, d: _set(CFG.humanization, "reaction_latency_max", d),
@@ -522,7 +522,7 @@ def _build_humanization_settings():
             cb=lambda s, d: _set(CFG.humanization, "pid_noise_enabled", d),
         )
         _slider_with_tooltip(
-            "Noise amplitude", tag="cfg_hum_noise_amp",
+            "Noise amplitude (px)", tag="cfg_hum_noise_amp",
             min_val=0.0, max_val=15.0, fmt="%.1f",
             default=CFG.humanization.pid_noise_amplitude,
             cb=lambda s, d: _set(CFG.humanization, "pid_noise_amplitude", d),
@@ -538,13 +538,13 @@ def _build_humanization_settings():
         dpg.add_text("Timing Jitter", color=TEXT_MUTED)
         dpg.add_spacer(height=4)
         _slider_with_tooltip(
-            "Cast jitter", tag="cfg_hum_cast_jitter",
+            "Cast jitter (s)", tag="cfg_hum_cast_jitter",
             min_val=0.0, max_val=0.50, fmt="%.2f",
             default=CFG.humanization.cast_animation_jitter,
             cb=lambda s, d: _set(CFG.humanization, "cast_animation_jitter", d),
         )
         _slider_with_tooltip(
-            "Result jitter", tag="cfg_hum_result_jitter",
+            "Result jitter (s)", tag="cfg_hum_result_jitter",
             min_val=0.0, max_val=0.50, fmt="%.2f",
             default=CFG.humanization.result_wait_jitter,
             cb=lambda s, d: _set(CFG.humanization, "result_wait_jitter", d),
@@ -649,8 +649,8 @@ def _slider_with_tooltip(
     fmt: str, default: float, cb: Callable,
 ):
     dpg.add_slider_float(
-        label=label, tag=tag, min_value=min_val, max_value=max_val,
-        format=fmt, width=-1, default_value=default, callback=cb,
+        label=f"{label}", tag=tag, min_value=min_val, max_value=max_val,
+        format=fmt, width=-int(180 * _s), default_value=default, callback=cb,
     )
     _add_tooltip(tag, label)
     tip = _TOOLTIPS.get(label)

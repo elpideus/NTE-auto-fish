@@ -19,6 +19,7 @@ from gui.theme import (
     TEXT_VERY_MUTED,
     build_button_theme,
     build_glass_card_theme,
+    _ui_scale as _s,
 )
 
 # ---------------------------------------------------------------------------
@@ -106,13 +107,13 @@ def hsv_editor(prefix: str, hsv_range, label: str | None = None, default_open: b
             with dpg.group():
                 dpg.add_slider_intx(
                     label="Min", size=3, min_value=0, max_value=255,
-                    width=-1, tag=f"{prefix}_lower",
+                    width=-int(60 * _s), tag=f"{prefix}_lower",
                     default_value=list(hsv_range.lower),
                     callback=lambda s, d: _on_hsv_changed(prefix, hsv_range, "lower", d),
                 )
                 dpg.add_slider_intx(
                     label="Max", size=3, min_value=0, max_value=255,
-                    width=-1, tag=f"{prefix}_upper",
+                    width=-int(60 * _s), tag=f"{prefix}_upper",
                     default_value=list(hsv_range.upper),
                     callback=lambda s, d: _on_hsv_changed(prefix, hsv_range, "upper", d),
                 )
