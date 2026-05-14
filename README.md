@@ -23,7 +23,7 @@ Built with Python, OpenCV, MSS, PyDirectInput, and DearPyGui.
 
 - **Live control center**: Track bot state, fish count, session time, FPS, PID output, ROI data, and vision health in one GUI.
 - **Safer controls**: The GUI starts paused, handles stop commands urgently, and releases held keys during pause, stop, recalibration, and shutdown.
-- **Runtime tuning**: PID, HSV thresholds, timing, input keys, hotkeys, calibration, and debug options can be adjusted from the Settings tab.
+- **Runtime tuning**: PID, HSV thresholds, timing, input keys, hotkeys, calibration, and debug options can be adjusted from the Settings tab. ([Settings Guide](docs/SETTINGS_GUIDE.md))
 - **Resolution adaptation**: Ratio-based ROI calibration with resolution-proportional fallback supports 1080p, 2K, 4K, and custom display sizes automatically.
 - **Fast capture and input**: `mss` captures screen regions efficiently, while `PyDirectInput` sends game-friendly input events.
 - **Portable builds**: GitHub Actions produces a single-file Windows EXE for GUI and a lightweight source package for CLI that auto-installs dependencies on first run.
