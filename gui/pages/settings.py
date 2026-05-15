@@ -637,6 +637,21 @@ def _build_system_settings():
         dpg.add_spacer(height=4)
         dpg.add_text("", tag="cfg_system_update_status", color=TEXT_MUTED)
 
+        dpg.add_spacer(height=12)
+        dpg.add_text("Project Links", color=TEXT_MUTED)
+        with dpg.group(horizontal=True):
+            styled_button(
+                "View Releases", "btn_gh_releases",
+                callback=lambda: webbrowser.open("https://github.com/Chizukuo/NTE-auto-fish/releases"),
+                variant="neutral", width=int(140 * _s), height=int(28 * _s),
+            )
+            dpg.add_spacer(width=int(8 * _s))
+            styled_button(
+                "Report Issue", "btn_gh_issues",
+                callback=lambda: webbrowser.open("https://github.com/Chizukuo/NTE-auto-fish/issues"),
+                variant="neutral", width=int(140 * _s), height=int(28 * _s),
+            )
+
 
 # ---------------------------------------------------------------------------
 # Helper widgets
@@ -779,7 +794,7 @@ def _refresh_values():
     dpg.set_value("cfg_result_close_method", _result_method_label(CFG.result_close_method))
     dpg.set_value("cfg_always_on_top", CFG.always_on_top)
     dpg.set_value("cfg_debug_mode", CFG.debug_mode)
-    dpg.set_viewport_always_on_top(CFG.always_on_top)
+    dpg.configure_viewport(0, always_on_top=CFG.always_on_top)
 
     dpg.set_value("cfg_cal_scale_min", CFG.calibration.scale_min)
     dpg.set_value("cfg_cal_scale_max", CFG.calibration.scale_max)
@@ -817,7 +832,7 @@ def _refresh_values():
 
 def _on_top_changed(val):
     CFG.always_on_top = val
-    dpg.set_viewport_always_on_top(val)
+    dpg.configure_viewport(0, always_on_top=val)
 
 
 def _set(obj, attr: str, val):
