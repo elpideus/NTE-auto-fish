@@ -24,7 +24,7 @@ from gui.theme import (
 
 _log_items: deque[str] = deque(maxlen=300)
 _MAX_LOG_ITEMS = 300
-_MAX_LINE_LEN = 180
+_MAX_LINE_LEN = 1000
 
 _FILTER_ALL = "All"
 _FILTER_ERROR = "Error"

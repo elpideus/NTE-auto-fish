@@ -1,5 +1,6 @@
 """Thread-safe bridge between the bot worker and the DearPyGui UI."""
 import dataclasses
+import logging
 import queue
 import time
 from typing import Optional, Tuple
@@ -59,7 +60,7 @@ class BotBridge:
             except queue.Empty:
                 pass
         try:
-            self._log_q.put_nowait(f"[{_fmt_time()}] {msg}")
+            self._log_q.put_nowait(msg)
         except queue.Full:
             pass
 
@@ -115,6 +116,21 @@ class BotBridge:
                 self._cmd_q.get_nowait()
             except queue.Empty:
                 break
+
+
+class BridgeHandler(logging.Handler):
+    """A logging handler that redirects formatted logs to a BotBridge."""
+
+    def __init__(self, bridge: BotBridge) -> None:
+        super().__init__()
+        self.bridge = bridge
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            msg = self.format(record)
+            self.bridge.push_log(msg)
+        except Exception:
+            self.handleError(record)
 
 
 def _fmt_time() -> str:

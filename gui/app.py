@@ -14,7 +14,7 @@ from gui.pages.logs import create_logs, update_logs_ui
 from gui.pages.settings import create_settings, update_settings_ui
 from gui.sidebar import create_sidebar, set_active_page
 from gui.theme import _FONT_PATH, FONT_SIZES, build_global_theme, set_ui_scale
-from main import NTEFishingBot
+from main import NTEFishingBot, log
 from modules.utils import VERSION, bundled_path
 from screeninfo import get_monitors
 
@@ -179,13 +179,13 @@ class FishingGUI:
                 self._hotkey_handles.append(
                     keyboard.add_hotkey(stop, self._stop_bot_hotkey)
                 )
-            self.bridge.push_log(
+            log.info(
                 "Hotkeys active: "
                 f"toggle={toggle.upper() if toggle else 'disabled'}, "
                 f"stop={stop.upper() if stop else 'disabled'}"
             )
         except Exception as exc:
-            self.bridge.push_log(f"Hotkey registration failed: {exc}")
+            log.error(f"Hotkey registration failed: {exc}")
 
     def _clear_hotkeys(self):
         for handle in self._hotkey_handles:
@@ -213,7 +213,7 @@ class FishingGUI:
         with self._bot_lock:
             if self.bot_thread and self.bot_thread.is_alive():
                 if self.bot._stop_flag:
-                    self.bridge.push_log(
+                    log.warning(
                         "Bot is still stopping. Wait a moment before starting again."
                     )
                     return
@@ -224,7 +224,7 @@ class FishingGUI:
             self.bot.publish_status()
             self.bot_thread = threading.Thread(target=self._run_bot_thread, daemon=True)
             self.bot_thread.start()
-            self.bridge.push_log("Bot started paused.")
+            log.info("Bot started paused.")
 
     def _run_bot_thread(self):
         try:
@@ -241,18 +241,18 @@ class FishingGUI:
             except Exception:
                 pass
             self.bot.publish_status()
-            self.bridge.push_log(f"Bot crashed: {exc}")
+            log.exception(f"Bot crashed: {exc}")
 
     def _stop_bot(self, join: bool = False):
         with self._bot_lock:
             self.bot.request_stop()
             self.bot.publish_status()
             self.bridge.send_cmd("stop")
-            self.bridge.push_log("Stop requested.")
+            log.info("Stop requested.")
         if join and self.bot_thread and self.bot_thread.is_alive():
             self.bot_thread.join(timeout=5.0)
             if self.bot_thread.is_alive():
-                self.bridge.push_log("Bot thread did not stop within 5 seconds.")
+                log.error("Bot thread did not stop within 5 seconds.")
 
     def _shutdown(self):
         self._stop_bot(join=True)

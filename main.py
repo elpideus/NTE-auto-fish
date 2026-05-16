@@ -51,9 +51,13 @@ def _resource_path(*parts: str) -> str:
     return bundled_path(*parts)
 
 
+LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
+DATE_FORMAT = "%H:%M:%S"
+
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
+    format=LOG_FORMAT,
+    datefmt=DATE_FORMAT,
     handlers=[
         logging.StreamHandler(sys.stdout),
         logging.handlers.RotatingFileHandler(
@@ -75,6 +79,14 @@ class NTEFishingBot:
     ) -> None:
         self.cfg = cfg
         self.bridge = bridge
+        
+        if bridge:
+            from gui.bridge import BridgeHandler
+            handler = BridgeHandler(bridge)
+            handler.setFormatter(logging.Formatter(LOG_FORMAT, datefmt=DATE_FORMAT))
+            # Add to root logger to capture all messages, or just 'NTEFish'
+            logging.getLogger().addHandler(handler)
+
         self.capture = CaptureModule()
         self.input = InputModule()
         self.vision = VisionModule()
@@ -159,8 +171,6 @@ class NTEFishingBot:
 
     def _log(self, msg: str, level: int = logging.INFO):
         log.log(level, msg)
-        if self.bridge:
-            self.bridge.push_log(msg)
 
     def _push_status(self):
         if not self.bridge:
@@ -426,10 +436,8 @@ class NTEFishingBot:
                     self._handle_result()
         except KeyboardInterrupt:
             self._log("Ctrl+C received.")
-        except Exception as exc:
+        except Exception:
             log.exception("Bot crashed")
-            if self.bridge:
-                self.bridge.push_log(f"Bot crashed: {exc}")
         finally:
             self._is_paused = True
             self._is_stopped = True
