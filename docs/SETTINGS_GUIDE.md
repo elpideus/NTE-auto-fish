@@ -19,6 +19,7 @@ The PID controller is used to smoothly and accurately track the target safe zone
 ## 2. Vision & Detection
 This section controls how the bot identifies game elements via screen colors. You may need to tweak these when facing lighting changes (e.g., sunset/night).
 
+*   **Detection threshold (px):** The minimum contour area (in pixels) required to recognize the cursor or safe zone. This value is dynamically scaled based on your current screen resolution.
 *   **Safe Zone HSV:** The color range of the target safe zone on the fishing bar.
 *   **Cursor HSV:** The color range of the player's cursor on the fishing bar.
 *   **Bite Trigger HSV:** The color range of the float/exclamation mark used to detect if a fish bites.
@@ -70,6 +71,12 @@ Introduces randomness and imperfect reactions to make the bot look more like a h
     *   Overlays random noise onto the perfect PID output, making the movement path less mechanical.
 *   **Timing Jitter:** 
     *   Adds random fluctuation to fixed timings like cast animation and result wait.
+*   **Mouse Trajectory (RESULT Stage):**
+    *   **Curve amp (px):** The curve amplitude of mouse movements. Controls how curved/natural the mouse path looks. Setting this to 0 results in straight lines, while higher values create more organic, curved trajectories.
+    *   **Move dur min/max (s):** The random duration range (in seconds) for mouse movement transitions.
+    *   **Click jitter X/Y (px):** Random offset range (in pixels) applied to the click location relative to the button center. Mimics a human clicking slightly off-center on UI buttons.
+*   **Hook Reaction (WAITING Stage):**
+    *   **Hook reaction min/max (s):** Simulates human reaction lag before pulling/reeling in the fish when a bite is detected. Mimics the brief moment a player takes to react to the visual prompt.
 *   **Adaptive Focus (Dynamic Speedup):**
     *   **High-level:** Simulates real player behavior: When the fish is far away and about to escape, a player's focus increases and reactions become faster. When enabled, larger errors automatically reduce the bot's latency and increase input frequency to pull the fish back quickly.
     *   **How it works:** The bot calculates an `intensity` factor based on how far the cursor is from the center of the safe zone. The larger the distance, the higher the intensity. This intensity then dynamically scales three key humanization parameters:
