@@ -1,13 +1,16 @@
 """Single source of runtime configuration for NTE Auto-Fish."""
 import json
+import logging
 import os
-import random
 from dataclasses import asdict, dataclass, field
+from random import SystemRandom
 from typing import Tuple
 
 from modules.utils import APP_DIR
 
 DEFAULT_SETTINGS_PATH = os.path.join(APP_DIR, "settings.json")
+log = logging.getLogger("NTEFish")
+_RNG = SystemRandom()
 
 
 @dataclass
@@ -209,15 +212,15 @@ class AppConfig:
                         setattr(obj, key, value)
 
             update_obj(self, data)
-        except Exception as exc:
-            print(f"Failed to load settings: {exc}")
+        except (OSError, ValueError, TypeError) as exc:
+            log.error("Failed to load settings from %s: %s", path, exc)
 
 
 def jitter(base: float, spread: float, minimum: float = 0.0) -> float:
     """Return base +/- spread, clamped to [minimum, ...]."""
     if spread <= 0.0:
         return base
-    return max(minimum, base + random.uniform(-spread, spread))
+    return max(minimum, base + _RNG.uniform(-spread, spread))
 
 
 def sample_reaction(min_val: float, max_val: float, dist: str = "uniform") -> float:
@@ -227,19 +230,19 @@ def sample_reaction(min_val: float, max_val: float, dist: str = "uniform") -> fl
     if dist == "gaussian":
         mean = (min_val + max_val) / 2
         std = (max_val - min_val) / 6  # 99.7% within range
-        return max(min_val, min(max_val, random.gauss(mean, std)))
+        return max(min_val, min(max_val, _RNG.gauss(mean, std)))
     if dist == "exponential":
         span = max_val - min_val
         # mean = span/3, so most values cluster toward the low end
-        return min(max_val, min_val + random.expovariate(3.0 / span))
-    return random.uniform(min_val, max_val)
+        return min(max_val, min_val + _RNG.expovariate(3.0 / span))
+    return _RNG.uniform(min_val, max_val)
 
 
 def sample_noise(amplitude: float, dist: str = "gaussian") -> float:
     """Sample PID noise from the specified distribution."""
     if dist == "gaussian":
-        return random.gauss(0, amplitude / 2)
-    return random.uniform(-amplitude, amplitude)
+        return _RNG.gauss(0, amplitude / 2)
+    return _RNG.uniform(-amplitude, amplitude)
 
 
 CFG = AppConfig()
