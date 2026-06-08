@@ -265,6 +265,8 @@ class NTEFishingBot:
             if not self._is_stopped:
                 self._bait_error_count = 0
                 self._is_paused = False
+                if self._session_manager.active_session_id() is None:
+                    self._session_manager.start_session()
                 self._log("Bot resumed by user.")
         elif cmd == "recalibrate":
             self._is_paused = True
