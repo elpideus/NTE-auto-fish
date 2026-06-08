@@ -50,7 +50,6 @@ if TYPE_CHECKING:
 _RNG = SystemRandom()
 
 _DEFAULT_SCREEN_W = 3840
-_CATCH_LOG_FILENAME = "catch_log.csv"
 _DEFAULT_SCREEN_H = 2160
 _RESULT_CLOSE_FALLBACK_X = 960
 _RESULT_CLOSE_FALLBACK_Y = 540
@@ -184,6 +183,8 @@ class NTEFishingBot:
         self._last_time = time.time()
         self._last_action = "NONE"
         self._consecutive_waiting_timeouts = 0
+        self._last_fish_name = ""
+        self._last_fish_weight_g = ""
         self._session_manager.start_session()
 
     def request_stop(self) -> None:
