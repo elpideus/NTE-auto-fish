@@ -18,7 +18,7 @@ from gui.bridge import BotBridge
 from modules.utils import VERSION
 from gui.components import (apply_glass_card_theme, caption_text, hsv_editor,
                             section_header, styled_button, update_hsv_preview)
-from gui.theme import (ACCENT, CARD_GAP, TEXT_MUTED, _ui_scale as _s,
+from gui.theme import (ACCENT, CARD_GAP, TEXT_MUTED, TEXT_PRIMARY, _ui_scale as _s,
                        build_settings_cat_theme)
 
 log = logging.getLogger("NTEFish")
