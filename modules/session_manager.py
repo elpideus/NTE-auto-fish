@@ -126,6 +126,9 @@ class SessionManager:
         if meta is None:
             raise ValueError(f"Session not found: {session_id}")
 
+        if self._active_meta and self._active_meta.id == session_id and self._csv_handle:
+            self._csv_handle.flush()
+
         rows = self._read_session_rows(meta.filename)
 
         if fmt == "csv":

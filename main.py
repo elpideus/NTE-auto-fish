@@ -185,7 +185,8 @@ class NTEFishingBot:
         self._consecutive_waiting_timeouts = 0
         self._last_fish_name = ""
         self._last_fish_weight_g = ""
-        self._session_manager.start_session()
+        if not paused:
+            self._session_manager.start_session()
 
     def request_stop(self) -> None:
         self._stop_flag = True
