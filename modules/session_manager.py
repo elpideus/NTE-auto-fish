@@ -40,7 +40,7 @@ class SessionManager:
         if self._csv_handle is not None:
             self.end_session()
 
-        session_id = "session_" + time.strftime("%Y%m%d_%H%M%S")
+        session_id = "session_" + time.strftime("%Y%m%d_%H%M%S") + "_" + os.urandom(3).hex()
         filename = f"{session_id}.csv"
         start_str = time.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -89,6 +89,7 @@ class SessionManager:
         finally:
             self._csv_handle = None
             self._csv_writer = None
+            self._active_meta = None
 
     # ------------------------------------------------------------------
     # Query / management
@@ -103,6 +104,9 @@ class SessionManager:
 
     def delete_session(self, session_id: str) -> None:
         """Remove a session's CSV file and its index entry."""
+        if session_id == self.active_session_id():
+            self.end_session()
+
         sessions = self._read_index()
         to_delete = next((s for s in sessions if s.id == session_id), None)
         if to_delete:
