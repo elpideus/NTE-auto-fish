@@ -113,6 +113,7 @@ _cat_active_theme: int | None = None
 _cat_inactive_theme: int | None = None
 
 _session_manager = None  # set via init_session_manager()
+_last_known_active_id: str | None = None
 
 
 def init_session_manager(mgr) -> None:
@@ -1236,8 +1237,12 @@ def update_settings_ui(bridge: BotBridge):
     dpg.set_value("cfg_fish_logging_enabled", CFG.fish_logging_enabled)
 
     if _session_manager is not None and dpg.does_item_exist("session_list_window"):
+        global _last_known_active_id
         active_id = _session_manager.active_session_id()
-        if active_id and dpg.does_item_exist(f"session_text_{active_id}"):
+        if active_id != _last_known_active_id:
+            _last_known_active_id = active_id
+            _rebuild_session_list()
+        elif active_id and dpg.does_item_exist(f"session_text_{active_id}"):
             count = _session_manager.active_fish_count()
             start = _session_manager.active_session_start()
             label = f"● {start[:16]} · {count} fish"
