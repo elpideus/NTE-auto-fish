@@ -315,7 +315,8 @@ def _rebuild_session_list() -> None:
         row_tag = f"session_row_{meta.id}"
 
         with dpg.group(horizontal=True, parent="session_list_window", tag=row_tag):
-            dpg.add_text(label, color=TEXT_PRIMARY if is_active else TEXT_MUTED)
+            text_tag = f"session_text_{meta.id}" if is_active else dpg.generate_uuid()
+            dpg.add_text(label, tag=text_tag, color=TEXT_PRIMARY if is_active else TEXT_MUTED)
             dpg.add_spacer(width=int(8 * _s))
             styled_button(
                 "Delete", f"session_del_{meta.id}",
@@ -468,7 +469,6 @@ def _build_vision_settings(bridge: BotBridge):
             border=True,
         ):
             pass
-        _rebuild_session_list()
 
 
 # ---------------------------------------------------------------------------
@@ -1237,16 +1237,11 @@ def update_settings_ui(bridge: BotBridge):
 
     if _session_manager is not None and dpg.does_item_exist("session_list_window"):
         active_id = _session_manager.active_session_id()
-        if active_id and dpg.does_item_exist(f"session_row_{active_id}"):
+        if active_id and dpg.does_item_exist(f"session_text_{active_id}"):
             count = _session_manager.active_fish_count()
-            start = next(
-                (s.start for s in _session_manager.load_sessions() if s.id == active_id),
-                "",
-            )
+            start = _session_manager.active_session_start()
             label = f"● {start[:16]} · {count} fish"
-            children = dpg.get_item_children(f"session_row_{active_id}", slot=1)
-            if children:
-                dpg.set_value(children[0], label)
+            dpg.set_value(f"session_text_{active_id}", label)
 
     dpg.set_value("cfg_timing_cast", CFG.timing.cast_animation_secs)
     dpg.set_value("cfg_timing_bite", CFG.timing.bite_timeout_secs)

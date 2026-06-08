@@ -143,6 +143,12 @@ class SessionManager:
             return 0
         return self._active_meta.fish_count
 
+    def active_session_start(self) -> str:
+        """Return the start timestamp of the active session, or empty string if none."""
+        if self._active_meta is None:
+            return ""
+        return self._active_meta.start
+
     def active_session_id(self) -> Optional[str]:
         """Return the ID of the currently active session, or None."""
         if self._active_meta is None:
