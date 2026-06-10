@@ -185,7 +185,7 @@ class NTEFishingBot:
         self._consecutive_waiting_timeouts = 0
         self._last_fish_name = ""
         self._last_fish_weight_g = ""
-        if not paused:
+        if not paused and self.cfg.fish_logging_enabled:
             self._session_manager.start_session()
 
     def request_stop(self) -> None:
@@ -265,7 +265,7 @@ class NTEFishingBot:
             if not self._is_stopped:
                 self._bait_error_count = 0
                 self._is_paused = False
-                if self._session_manager.active_session_id() is None:
+                if self.cfg.fish_logging_enabled and self._session_manager.active_session_id() is None:
                     self._session_manager.start_session()
                 self._log("Bot resumed by user.")
         elif cmd == "recalibrate":
@@ -849,7 +849,8 @@ class NTEFishingBot:
         """Write one catch to the active session and cache for the UI."""
         self._last_fish_name = name
         self._last_fish_weight_g = weight_g
-        self._session_manager.append_catch(name, weight_g)
+        if self.cfg.fish_logging_enabled and (name or weight_g):
+            self._session_manager.append_catch(name, weight_g)
 
     def _ocr_catch_screen(self) -> tuple[str, str]:
         """
@@ -899,7 +900,10 @@ class NTEFishingBot:
                 return ""
 
         # Hide the bot window so its text doesn't bleed into the capture region.
-        if self._hide_ui:
+        # hide_ui/show_ui call DPG APIs; guard against a torn-down context.
+        import dearpygui.dearpygui as _dpg
+        _gui_active = _dpg.is_dearpygui_running()
+        if self._hide_ui and _gui_active:
             try:
                 self._hide_ui()
             except Exception:
@@ -917,7 +921,7 @@ class NTEFishingBot:
             m = re.search(r"(\d+)", raw_weight)
             weight_g = m.group(1) if m else ""
         finally:
-            if self._show_ui:
+            if self._show_ui and _gui_active:
                 try:
                     self._show_ui()
                 except Exception:

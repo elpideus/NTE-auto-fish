@@ -75,6 +75,14 @@ class SessionManager:
             if s.id == self._active_meta.id:
                 s.fish_count = self._active_meta.fish_count
                 break
+        else:
+            # Index was missing or corrupt; re-insert the active session.
+            sessions.append(SessionMeta(
+                id=self._active_meta.id,
+                start=self._active_meta.start,
+                fish_count=self._active_meta.fish_count,
+                filename=self._active_meta.filename,
+            ))
         self._write_index(sessions)
 
     def end_session(self) -> None:
@@ -195,7 +203,15 @@ class SessionManager:
                     continue
                 session_id = fname[:-4]
                 rows = self._read_session_rows(fname)
-                start_str = rows[0]["timestamp"] if rows else "unknown"
+                # Parse start time from session_YYYYMMDD_HHMMSS_hex.csv
+                try:
+                    ts_part = session_id[len("session_"):][:15]
+                    start_str = time.strftime(
+                        "%Y-%m-%d %H:%M:%S",
+                        time.strptime(ts_part, "%Y%m%d_%H%M%S"),
+                    )
+                except Exception:
+                    start_str = rows[0]["timestamp"] if rows else "unknown"
                 sessions.append(SessionMeta(
                     id=session_id,
                     start=start_str,

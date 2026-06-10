@@ -339,6 +339,9 @@ def _rebuild_session_list() -> None:
 def _on_delete_session(session_id: str) -> None:
     if _session_manager is None:
         return
+    if session_id == _session_manager.active_session_id():
+        log.warning("Cannot delete the active session while the bot is running.")
+        return
     _session_manager.delete_session(session_id)
     _rebuild_session_list()
 
@@ -354,11 +357,11 @@ def _on_export_session(session_id: str) -> None:
         tag=modal_tag,
         modal=True,
         no_resize=True,
-        width=int(220 * _s),
-        height=int(100 * _s),
+        width=int(280 * _s),
+        height=int(130 * _s),
         pos=(
-            dpg.get_viewport_width() // 2 - int(110 * _s),
-            dpg.get_viewport_height() // 2 - int(50 * _s),
+            dpg.get_viewport_width() // 2 - int(140 * _s),
+            dpg.get_viewport_height() // 2 - int(65 * _s),
         ),
     ):
         dpg.add_text("Choose export format:", color=TEXT_MUTED)
@@ -376,26 +379,20 @@ def _on_export_session(session_id: str) -> None:
 
 
 def _do_export(session_id: str, fmt: str, modal_tag: str) -> None:
-    """Open a save-file dialog then write the export."""
-    import threading
-    import tkinter as tk
-    from tkinter import filedialog
-
+    """Open a DPG path-input modal then write the export."""
     if dpg.does_item_exist(modal_tag):
         dpg.delete_item(modal_tag)
 
-    ext_map = {"csv": "*.csv", "json": "*.json", "xlsx": "*.xlsx"}
+    path_modal = "export_path_modal"
+    if dpg.does_item_exist(path_modal):
+        dpg.delete_item(path_modal)
 
-    def _run():
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-        dest = filedialog.asksaveasfilename(
-            defaultextension=f".{fmt}",
-            filetypes=[(fmt.upper(), ext_map[fmt]), ("All files", "*.*")],
-            title="Export session",
-        )
-        root.destroy()
+    default_name = f"{session_id}.{fmt}"
+
+    def _on_confirm(s, a, u):
+        dest = dpg.get_value("export_path_input").strip()
+        if dpg.does_item_exist(path_modal):
+            dpg.delete_item(path_modal)
         if not dest:
             return
         try:
@@ -404,7 +401,39 @@ def _do_export(session_id: str, fmt: str, modal_tag: str) -> None:
         except Exception:
             log.warning("Session export failed.", exc_info=True)
 
-    threading.Thread(target=_run, daemon=True).start()
+    with dpg.window(
+        label=f"Export as {fmt.upper()}",
+        tag=path_modal,
+        modal=True,
+        no_resize=True,
+        width=int(360 * _s),
+        height=int(110 * _s),
+        pos=(
+            dpg.get_viewport_width() // 2 - int(180 * _s),
+            dpg.get_viewport_height() // 2 - int(55 * _s),
+        ),
+    ):
+        dpg.add_text("Save path:", color=TEXT_MUTED)
+        dpg.add_input_text(
+            tag="export_path_input",
+            default_value=default_name,
+            width=-1,
+        )
+        dpg.add_spacer(height=int(6 * _s))
+        with dpg.group(horizontal=True):
+            styled_button(
+                "Save", "export_path_ok",
+                callback=_on_confirm,
+                variant="neutral",
+                width=int(70 * _s), height=int(26 * _s),
+            )
+            dpg.add_spacer(width=int(6 * _s))
+            styled_button(
+                "Cancel", "export_path_cancel",
+                callback=lambda s, a, u: dpg.delete_item(path_modal) if dpg.does_item_exist(path_modal) else None,
+                variant="danger",
+                width=int(70 * _s), height=int(26 * _s),
+            )
 
 
 def _build_vision_settings(bridge: BotBridge):
@@ -485,7 +514,11 @@ def _open_scanning_area_editor() -> None:
     drags any corner handle to resize.  OK saves to CFG; Cancel discards.
     Runs in its own thread so the DPG UI stays responsive.
     """
-    import tkinter as tk
+    try:
+        import tkinter as tk
+    except ImportError:
+        log.warning("Tkinter is not available in this build; scanning area editor is disabled.")
+        return
 
     monitors = get_monitors()
     mon_idx  = max(0, min(CFG.monitor_index, len(monitors) - 1))
