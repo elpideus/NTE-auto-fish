@@ -902,23 +902,19 @@ class NTEFishingBot:
                 log.debug("OCR region failed.", exc_info=True)
                 return ""
 
-        # Hide the bot window so its text doesn't bleed into the capture region.
-        # hide_ui/show_ui call DPG APIs; guard against a torn-down context.
         import dearpygui.dearpygui as _dpg
         _gui_active = _dpg.is_dearpygui_running()
         if self._hide_ui and _gui_active:
             try:
                 self._hide_ui()
             except Exception:
-                pass
+                self._log("Failed to hide DPG window for OCR capture", logging.DEBUG)
         try:
-            # --- Fish name ---
             name_roi = _roi(*self.cfg.ocr_name_roi_ratios)
             raw_name = _ocr_region(name_roi)
             name = re.sub(r"[^\w '\-]", " ", raw_name).strip()
             name = re.sub(r" {2,}", " ", name)
 
-            # --- Weight ---
             weight_roi = _roi(*self.cfg.ocr_weight_roi_ratios)
             raw_weight = _ocr_region(weight_roi)
             m = re.search(r"(\d+)", raw_weight)
@@ -928,7 +924,7 @@ class NTEFishingBot:
                 try:
                     self._show_ui()
                 except Exception:
-                    pass
+                    self._log("Failed to show DPG window after OCR capture", logging.DEBUG)
 
         return name, weight_g
 
