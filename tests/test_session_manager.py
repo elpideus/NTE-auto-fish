@@ -14,6 +14,7 @@ class TestSessionManager(unittest.TestCase):
 
     def tearDown(self):
         import shutil
+        self.mgr.end_session()
         shutil.rmtree(self._tmpdir, ignore_errors=True)
 
     def test_start_session_creates_file(self):
@@ -24,7 +25,8 @@ class TestSessionManager(unittest.TestCase):
         self.mgr.start_session()
         index_path = os.path.join(self._tmpdir, "index.json")
         self.assertTrue(os.path.exists(index_path))
-        data = json.loads(open(index_path).read())
+        with open(index_path, encoding="utf-8") as f:
+            data = json.load(f)
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["fish_count"], 0)
 
@@ -83,7 +85,8 @@ class TestSessionManager(unittest.TestCase):
         self.mgr.end_session()
         out = os.path.join(self._tmpdir, "out.json")
         self.mgr.export_session(meta.id, out, "json")
-        data = json.loads(open(out).read())
+        with open(out, encoding="utf-8") as f:
+            data = json.load(f)
         self.assertIsInstance(data, list)
         self.assertEqual(data[0]["fish_name"], "Bass")
 

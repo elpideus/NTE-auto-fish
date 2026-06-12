@@ -22,11 +22,10 @@ from config import CFG, AppConfig, DEFAULT_SETTINGS_PATH, jitter as cfg_jitter, 
 
 try:
     from rapidocr_onnxruntime import RapidOCR as _RapidOCR
-    _ocr_engine = _RapidOCR()
     _OCR_AVAILABLE = True
 except ImportError:
-    _ocr_engine = None  # type: ignore[assignment]
     _OCR_AVAILABLE = False
+_ocr_engine = None  # type: ignore[assignment]  # lazy-initialised on first use
 from modules.logic import FishingState, FishingStateMachine, PIDController
 from modules.utils import APP_DIR, bundled_path
 from modules.session_manager import SessionManager
@@ -862,6 +861,10 @@ class NTEFishingBot:
         if not self._screen_w or not self._screen_h:
             return "", ""
 
+        global _ocr_engine
+        if _ocr_engine is None:
+            _ocr_engine = _RapidOCR()
+
         import re
 
         def _roi(left_r, top_r, right_r, bottom_r) -> dict:
@@ -912,7 +915,7 @@ class NTEFishingBot:
             # --- Fish name ---
             name_roi = _roi(*self.cfg.ocr_name_roi_ratios)
             raw_name = _ocr_region(name_roi)
-            name = re.sub(r"[^A-Za-z0-9 '\-]", " ", raw_name).strip()
+            name = re.sub(r"[^\w '\-]", " ", raw_name).strip()
             name = re.sub(r" {2,}", " ", name)
 
             # --- Weight ---
